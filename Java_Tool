@@ -1,0 +1,167 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.*;
+
+public class PuzzleCreatorApp extends JFrame 
+{
+    // Components
+    private JPanel puzzlePanel;
+    private JComboBox<String> componentSelector;
+    private JButton addButton;
+    private JButton saveButton;
+
+    public PuzzleCreatorApp() 
+    {
+        setTitle("Puzzle Creator");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(800, 600);
+
+        initComponents();
+        addComponents();
+    }
+
+    private void initComponents() 
+    {
+        puzzlePanel = new JPanel();
+        puzzlePanel.setLayout(new FlowLayout());
+
+        // Dropdown for selecting puzzle components
+        String[] components = {"Switch", "Button", "Lever", "Logic Gate"};
+        componentSelector = new JComboBox<>(components);
+
+        // Button to add selected component to the puzzle
+        addButton = new JButton("Add Component");
+        addButton.addActionListener(new ActionListener() 
+        {
+            @Override
+            public void actionPerformed(ActionEvent e) 
+            {
+                addComponentToPanel((String) componentSelector.getSelectedItem());
+            }
+        });
+
+        // Button to save the puzzle configuration
+        saveButton = new JButton("Save");
+        saveButton.addActionListener(new ActionListener() 
+        {
+            @Override
+            public void actionPerformed(ActionEvent e) 
+            {
+                savePuzzle();
+            }
+        });
+    }
+
+    private void addComponents() 
+    {
+        JPanel controlPanel = new JPanel();
+        controlPanel.add(componentSelector);
+        controlPanel.add(addButton);
+        controlPanel.add(saveButton);
+
+        getContentPane().add(controlPanel, BorderLayout.NORTH);
+        getContentPane().add(new JScrollPane(puzzlePanel), BorderLayout.CENTER);
+    }
+
+    private void addComponentToPanel(String componentType) 
+    {
+        switch (componentType) 
+        {
+            case "Switch":
+                puzzlePanel.add(new Switch());
+                break;
+            case "Button":
+                puzzlePanel.add(new Button());
+                break;
+            case "Lever":
+                puzzlePanel.add(new Lever());
+                break;
+            case "Logic Gate":
+                puzzlePanel.add(new LogicGate());
+                break;
+            default:
+                break;
+        }
+        puzzlePanel.revalidate();
+        puzzlePanel.repaint();
+    }
+
+    private void savePuzzle() 
+    {
+        JFileChooser fileChooser = new JFileChooser();
+        int returnValue = fileChooser.showSaveDialog(this);
+        if (returnValue == JFileChooser.APPROVE_OPTION) 
+        {
+            File file = fileChooser.getSelectedFile();
+            try (PrintWriter writer = new PrintWriter(file)) 
+            {
+                for (Component component : puzzlePanel.getComponents()) 
+                {
+                    if (component instanceof JLabel) 
+                    {
+                        JLabel label = (JLabel) component;
+                        writer.println(label.getText() + "," + label.getX() + "," + label.getY());
+                    }
+                }
+                JOptionPane.showMessageDialog(this, "Puzzle saved successfully.");
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Error saving puzzle.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    public static void main(String[] args) 
+    {
+        SwingUtilities.invokeLater(new Runnable() 
+        {
+            @Override
+            public void run() 
+            {
+                new PuzzleCreatorApp().setVisible(true);
+            }
+        });
+    }
+}
+
+// Example puzzle components
+class Switch extends JLabel 
+{
+    public Switch() 
+    {
+        setText("Switch");
+        setPreferredSize(new Dimension(80, 30));
+        setBorder(BorderFactory.createLineBorder(Color.BLACK));
+    }
+}
+
+class Button extends JLabel 
+{
+    public Button() 
+    {
+        setText("Button");
+        setPreferredSize(new Dimension(80, 30));
+        setBorder(BorderFactory.createLineBorder(Color.BLACK));
+    }
+}
+
+class Lever extends JLabel 
+{
+    public Lever() 
+    {
+        setText("Lever");
+        setPreferredSize(new Dimension(80, 30));
+        setBorder(BorderFactory.createLineBorder(Color.BLACK));
+    }
+}
+
+class LogicGate extends JLabel 
+{
+    public LogicGate() 
+    {
+        setText("Logic Gate");
+        setPreferredSize(new Dimension(80, 30));
+        setBorder(BorderFactory.createLineBorder(Color.BLACK));
+    }
+}
